@@ -1,0 +1,49 @@
+version: '3.0'
+services:
+
+  frontend:
+    build: ./frontend
+    image: frontend:1st
+    container_name: frontend_1sthomework
+    ports:
+      - 80:80
+    networks:
+      - fnet
+
+  backend:
+     build: ./lib_catalog
+     image: backend:2nd
+     container_name: backend_2ndhomework
+     ports:
+       - 8000:3000
+     depends_on:
+       - database
+     networks:
+       - bnet
+
+  database:
+    image: postgres:14
+    container_name: database
+    restart: unless-stopped
+    ports:
+      - 5432:5432
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: django
+      POSTGRES_USER: django
+      POSTGRES_PASSWORD: django
+      PGDATA: /var/lib/postgresql/data/pgdata
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U django -d django"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - bnet
+
+networks:
+  bnet:
+    driver: bridge
+  fnet:
+    driver: bridge
